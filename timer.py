@@ -2,8 +2,8 @@ from sys import argv
 from os.path import exists
 import csv
 
-csvHeader = ["taskID","taskDesc","timeList"]
-defaultPrompt = "?>"
+csvHeader = ["taskDesc","timeList", "comments"]
+defaultPrompt = "?> "
 
 def main():
     if len(argv) < 2:
@@ -38,11 +38,20 @@ def main():
     print(tasks)
 
 def readStorageFile(path):
+    taskList = []
+    errors = []
     with open(argv[1], 'r') as storage:
         reader = csv.DictReader(storage)
-        for row in reader:
-            print(row["timeList"])
-    return [],[]
+        if (reader.fieldnames == csvHeader):
+            taskId = 0
+            for row in reader:
+                #newTaskTask(taskId, row["taskDesc"], row["timeList"], row["comments"]))
+                #taskList.append(
+                taskList.append("test")
+                taskId += 1
+        else:
+            errors.append("Incorrect header format in {}".format(path))
+    return taskList, errors
 
 def newTask(args, state):
     print("new task!")
