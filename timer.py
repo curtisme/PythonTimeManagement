@@ -1,5 +1,6 @@
 from sys import argv
 from os.path import exists
+from Tasks import Task
 import csv
 
 csvHeader = ["taskDesc","timeList", "comments"]
@@ -25,7 +26,8 @@ def main():
     state = {
                 "activeTask" : -1,
                 "tasks": tasks,
-                "prompt" : defaultPrompt
+                "prompt" : defaultPrompt,
+                "storagePath" : argv[1]
             }
     userQuitSession = False
     while not userQuitSession:
@@ -33,9 +35,8 @@ def main():
         command,args = splitUserInput(userInput)
         try:
             userQuitSession = switch[command](args, state)
-        except:
+        except KeyError:
             continue
-    print(tasks)
 
 def readStorageFile(path):
     taskList = []
@@ -43,48 +44,53 @@ def readStorageFile(path):
     with open(argv[1], 'r') as storage:
         reader = csv.DictReader(storage)
         if (reader.fieldnames == csvHeader):
-            taskId = 0
             for row in reader:
-                #newTaskTask(taskId, row["taskDesc"], row["timeList"], row["comments"]))
-                #taskList.append(
-                taskList.append("test")
-                taskId += 1
+                newTask = Task(row["taskDesc"], row["timeList"], row["comments"])
+                taskList.append(newTask)
         else:
             errors.append("Incorrect header format in {}".format(path))
     return taskList, errors
 
 def newTask(args, state):
-    print("new task!")
-    #stopTask(args, state)
-    #newTask = Task(args)
-    #state["tasks"].append(newTask)
-    #startTask(-1, args)
-    state["tasks"].append(args)
+    state["tasks"].append(Task(args))
+    startTask(-1, state)
     return False
 
 def startTask(args, state):
+    if state["activeTask"] > -1:
+        stopTask(state["activeTask"], state)
     try:
         taskId = int(args)
-        state["activeTask"] = taskId
-        state["prompt"] = state["tasks"][taskId] + defaultPrompt
+        state["tasks"][taskId].start()
+        state["activeTask"] = taskId if taskId > -1 else len(state["tasks"]) - 1
+        state["prompt"] = state["tasks"][taskId].description + defaultPrompt
     except:
         print("invalid task id!")
     return False
 
 def stopTask(args, state):
     if state["activeTask"] > -1:
+        state["tasks"][state["activeTask"]].stop()
         state["activeTask"] = -1
         state["prompt"] = defaultPrompt
     return False
 
 def saveState(args, state):
+    stopTask(args, state)
+    with open(state["storagePath"], "w") as storage:
+        writer = csv.DictWriter(storage, csvHeader)
+        writer.writeheader()
+        for task in state["tasks"]:
+            writer.writerow({"taskDesc" : task.description,"timeList" : task.timeListToString(),"comments": ""})
     return False
 
 def printAllTasks(args, state):
-    print("printing all tasks!")
+    for i in range(len(state["tasks"])):
+        print("taskId: {}, {}".format(i, state["tasks"][i]))
     return False
 
 def quitSession(args, state):
+    saveState(args, state)
     return True
 
 def splitUserInput(userInput):

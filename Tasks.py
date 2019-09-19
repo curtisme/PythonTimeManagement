@@ -22,8 +22,8 @@ class Task:
                     timeList.append(times)
             return timeList, errors
         self.description = taskDesc
-        #self.timeList, self.errors = getTimes(timeListString)
-        self.timeList, self.errors = [], []
+        self.timeList, self.errors = getTimes(timeListString)
+        #self.timeList, self.errors = [], []
         self.active = False
 
     def start(self):
@@ -43,16 +43,16 @@ class Task:
             start = localtime(time[0])
             if time[1] != -1:
                 stop = localtime(time[1])
-                endString = "{}:{}.{}".format(stop.tm_hour, stop.tm_min, stop.tm_sec)
+                endString = "{:02}:{:02}.{:02}".format(stop.tm_hour, stop.tm_min, stop.tm_sec)
             else:
                 endString = "?"
-            out += "{}:{}.{} - {}\n".format(start.tm_hour, start.tm_min, start.tm_sec, endString)
+            out += "{:02}:{:02}.{:02} - {}\n".format(start.tm_hour, start.tm_min, start.tm_sec, endString)
         return out
-    
-    def toCSVRow(self):
-        timeList = ""
-        for time in self.timeList:
-            timeList += "{}:{}|".format(time[0], time[1])
-        return "{},{}".format(self.description, timeList)
 
+    def timeListToString(self):
+        timeListString = ""
+        n = len(self.timeList)
+        for i in range(n):
+            timeListString += ("{}:{}|" if i < n - 1 else "{}:{}").format(self.timeList[i][0], self.timeList[i][1])
+        return timeListString
 
