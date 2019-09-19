@@ -57,8 +57,7 @@ def newTask(args, state):
     return False
 
 def startTask(args, state):
-    if state["activeTask"] > -1:
-        stopTask(state["activeTask"], state)
+    stopTask(args, state)
     try:
         taskId = int(args)
         state["tasks"][taskId].start()
