@@ -84,8 +84,12 @@ def saveState(args, state):
     return False
 
 def printAllTasks(args, state):
-    for i in range(len(state["tasks"])):
-        print("taskId: {}, {}".format(i, state["tasks"][i]))
+    try:
+        taskID = int(args)
+        print("taskId: {}, {}".format(taskID, state["tasks"][taskID]))
+    except:
+        for i in range(len(state["tasks"])):
+            print("taskId: {}, {}".format(i, state["tasks"][i]))
     return False
 
 def quitSession(args, state):
