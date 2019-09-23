@@ -20,7 +20,7 @@ def main():
                 "s" : startTask,
                 "x" : stopTask,
                 "b" : saveState,
-                "p" : printAllTasks,
+                "p" : printTask,
                 ":q" : quitSession
              }
     state = {
@@ -83,13 +83,13 @@ def saveState(args, state):
             writer.writerow({"taskDesc" : task.description,"timeList" : task.timeListToString(),"comments": ""})
     return False
 
-def printAllTasks(args, state):
+def printTask(args, state):
     try:
         taskID = int(args)
         print("taskId: {}, {}".format(taskID, state["tasks"][taskID]))
     except:
         for i in range(len(state["tasks"])):
-            print("taskId: {}, {}".format(i, state["tasks"][i]))
+            print("taskId: {}, {}".format(i, state["tasks"][i].description))
     return False
 
 def quitSession(args, state):
