@@ -36,6 +36,16 @@ class Task:
         if self.active:
             self.timeList[-1][1] = int(now())
             self.active = False
+            
+    def getTotalTimeSpent(self):
+        total = 0
+        for interval in self.timeList:
+            increment = (interval[1] if interval[1] > -1 else int(now())) - interval[0]
+            if increment > 0:
+                total += increment
+            else:
+                raise Exception("getTotalTimeSpent, increment is non positive")
+        return total
 
     def __str__(self):
         out = "{}:\n".format(self.description)
@@ -47,6 +57,8 @@ class Task:
             else:
                 endString = "?"
             out += "{:02}:{:02}.{:02} - {}\n".format(start.tm_hour, start.tm_min, start.tm_sec, endString)
+        totalTime = self.getTotalTimeSpent()
+        out += "{} mins {} secs\n".format(totalTime//60, totalTime%60)
         return out
 
     def timeListToString(self):
