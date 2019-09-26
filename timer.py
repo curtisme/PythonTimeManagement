@@ -1,15 +1,22 @@
 from sys import argv
 from os.path import exists
+from os import system
 from Tasks import Task
 import csv
 
 csvHeader = ["taskDesc","timeList", "comments"]
 defaultPrompt = "?> "
+isReadOnly = False
 
 def main():
     if len(argv) < 2:
         print("Please provide file name for storage.")
         return
+    if len(argv) > 2:
+        global isReadOnly
+        isReadOnly = argv[2] == "r"
+    if isReadOnly:
+        print("Application open in Read Only mode.")
     tasks = []
     if exists(argv[1]):
         tasks,errors = readStorageFile(argv[1])
@@ -21,6 +28,7 @@ def main():
                 "x" : stopTask,
                 "b" : saveState,
                 "p" : printTask,
+                ":c" : clearScreen,
                 ":q" : quitSession
              }
     state = {
@@ -75,12 +83,13 @@ def stopTask(args, state):
     return False
 
 def saveState(args, state):
-    stopTask(args, state)
-    with open(state["storagePath"], "w") as storage:
-        writer = csv.DictWriter(storage, csvHeader)
-        writer.writeheader()
-        for task in state["tasks"]:
-            writer.writerow({"taskDesc" : task.description,"timeList" : task.timeListToString(),"comments": ""})
+    if not isReadOnly:
+        stopTask(args, state)
+        with open(state["storagePath"], "w") as storage:
+            writer = csv.DictWriter(storage, csvHeader)
+            writer.writeheader()
+            for task in state["tasks"]:
+                writer.writerow({"taskDesc" : task.description,"timeList" : task.timeListToString(),"comments": ""})
     return False
 
 def printTask(args, state):
@@ -90,6 +99,10 @@ def printTask(args, state):
     except:
         for i in range(len(state["tasks"])):
             print("taskId: {}, {}".format(i, state["tasks"][i].description))
+    return False
+
+def clearScreen(args, state):
+    system('cls')
     return False
 
 def quitSession(args, state):
