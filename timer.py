@@ -1,11 +1,12 @@
 from sys import argv
 from os.path import exists
-from os import system
 from Tasks import Task
+import os
 import csv
 
 csvHeader = ["taskDesc","timeList", "comments"]
 defaultPrompt = "?> "
+clearCommand = "cls" if os.name == "nt" else "clear"
 isReadOnly = False
 
 def main():
@@ -15,6 +16,7 @@ def main():
     if len(argv) > 2:
         global isReadOnly
         isReadOnly = argv[2] == "r"
+    clearScreen()
     if isReadOnly:
         print("Application open in Read Only mode.")
     tasks = []
@@ -101,8 +103,8 @@ def printTask(args, state):
             print("taskId: {}, {}".format(i, state["tasks"][i].description))
     return False
 
-def clearScreen(args, state):
-    system('cls')
+def clearScreen(*args):
+    os.system(clearCommand)
     return False
 
 def quitSession(args, state):
